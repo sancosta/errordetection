@@ -2,7 +2,7 @@
 
 ### Algoritmos de detecção e correção de erros na camada de enlace
 
-Atividade desenvolvida para disciplina de rede de computadores para simulação de alguns métodos utilizados para a detecção e correção de erros na camada de enlace da arquitetura TCP/IP. O simulador busca mostrar como os algoritmos tratam os dados (frames, quadros) durante o processo de comunicação entre um emissor e um receptor, na tentativa de encontrar erros e se possível corrigi-los.
+Projeto desenvolvido na disciplina de rede de computadores para simulação de alguns métodos utilizados na a detecção e correção de erros na camada de enlace da arquitetura TCP/IP. O simulador busca mostrar como os algoritmos tratam os dados (frames, quadros) durante o processo de comunicação entre um emissor e um receptor, na tentativa de encontrar erros e se possível corrigi-los.
 
 ### Os métodos disponíveis são :
 

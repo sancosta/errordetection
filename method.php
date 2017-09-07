@@ -1,72 +1,106 @@
 <?php
 
-//NOME: SAMUEL COSTA 
-//RA: 21508670
-//DISCIPLINA: REDE DE COMPUTADORES
-//EXECUTION : php -S localhost:8000
+//RECEBIMENTOS DE DADOS
+$data 	    = (isset($_POST["data"]))      ? $_POST["data"]   	: "";
+$method 	= (isset($_POST["method"]))    ? $_POST["method"] 	: "";
+$emitter	= (isset($_POST["emitter"]))   ? $_POST["emitter"] 	: "";
+$note;
 
-$dados = (!empty($_POST["dados"]))      ? $_POST["dados"]   : "";
-$metod = (!empty($_POST["metod"]))      ? $_POST["metod"]   : "";
-$simer = (!empty($_POST["emissor"]))    ? $_POST["emissor"] : "";
-$obser;
-
-switch($metod){
+//DETERMINAÇÃO DO MÉTODO SOLICITADO
+switch($method){
     case "01":
-        $obser = "";
-        $response["DADO_EMITIDO"] = emissorparidadesimples($dados);
-        $response["DADO_RECEBIDO"] = (empty($simer)) ? $response["DADO_EMITIDO"] : $simer ;
-        $response["DADO_IS_VALID"] = receptorparidadesimples($response["DADO_RECEBIDO"]);
-        $response["OBSERVACAO"] = $obser;
+        $note = "";
+        $response["DADO_EMITIDO"] 	= emissorparidadesimples($data);
+        $response["DADO_RECEBIDO"] 	= (empty($emitter)) ? $response["DADO_EMITIDO"] : $emitter ;
+        $response["DADO_IS_VALID"] 	= receptorparidadesimples($response["DADO_RECEBIDO"]);
+        $response["OBSERVACAO"] 	= substr($note, 5);
         break;
     case "02":
-        $obser = "";
-        $response["DADO_EMITIDO"] = $dados;
-        $response["DADO_RECEBIDO"] = (empty($simer)) ? $response["DADO_EMITIDO"] : $simer ;
-        $response["DADO_IS_VALID"] = receptorparidadedupla($response["DADO_RECEBIDO"]);
-        $response["OBSERVACAO"] = $obser;
+        $note = "";
+        $response["DADO_EMITIDO"] 	= $data;
+        $response["DADO_RECEBIDO"] 	= (empty($emitter)) ? $response["DADO_EMITIDO"] : $emitter ;
+        $response["DADO_IS_VALID"] 	= receptorparidadedupla($response["DADO_RECEBIDO"]);
+        $response["OBSERVACAO"] 	= substr($note, 5);
         break;
     case "03":
-        $obser = "";
-        $response["DADO_EMITIDO"] = emissorcrc($dados);
-        $response["DADO_RECEBIDO"] = (empty($simer)) ? $response["DADO_EMITIDO"] : $simer ;
-        $response["DADO_IS_VALID"] = receptorcrc($response["DADO_RECEBIDO"]);
-        $response["OBSERVACAO"] = $obser;
+        $note = "";
+        $response["DADO_EMITIDO"] 	= emissorcrc($data);
+        $response["DADO_RECEBIDO"] 	= (empty($emitter)) ? $response["DADO_EMITIDO"] : $emitter ;
+        $response["DADO_IS_VALID"] 	= receptorcrc($response["DADO_RECEBIDO"]);
+        $response["OBSERVACAO"] 	= substr($note, 5);
         break;
     case "04":
-        $obser = "";
-        $response["DADO_EMITIDO"] = emissorchecksum($dados);
-        $response["DADO_RECEBIDO"] = (empty($simer)) ? $response["DADO_EMITIDO"] : $simer ;
-        $response["DADO_IS_VALID"] = receptorchecksum($response["DADO_RECEBIDO"]);
-        $response["OBSERVACAO"] = $obser;
+        $note = "";
+        $response["DADO_EMITIDO"] 	= emissorchecksum($data);
+        $response["DADO_RECEBIDO"] 	= (empty($emitter)) ? $response["DADO_EMITIDO"] : $emitter ;
+        $response["DADO_IS_VALID"] 	= receptorchecksum($response["DADO_RECEBIDO"]);
+        $response["OBSERVACAO"] 	= substr($note, 5);
         break;
     case "05":
-        $obser = "";
-        $response["DADO_EMITIDO"] = emissorhamming($dados);
-        $response["DADO_RECEBIDO"] = (empty($simer)) ? $response["DADO_EMITIDO"] : $simer ;
-        $response["DADO_IS_VALID"] = receptorhamming($response["DADO_RECEBIDO"]);
-        $response["OBSERVACAO"] = $obser;
+        $note = "";
+        $response["DADO_EMITIDO"] 	= emissorhamming($data);
+        $response["DADO_RECEBIDO"] 	= (empty($emitter)) ? $response["DADO_EMITIDO"] : $emitter ;
+        $response["DADO_IS_VALID"] 	= receptorhamming($response["DADO_RECEBIDO"]);
+        $response["OBSERVACAO"] 	= substr($note, 5);
         break;
     default:
-        $response["OBSERVACAO"] = "MÉTODO NÃO IDENTIFICADO!";
+        $response["OBSERVACAO"] 	= "</br>MÉTODO NÃO IDENTIFICADO!";
 }
 
+//RESPOSTA
 echo json_encode($response);
+
+//FUNÇÕES QUE SIMULAM ALGUNS MÉTODOS UTILIZADOS PELA CAMADA DE ENLACE PARA DETECÇÃO E CORREÇÃO DE ERROS
 
 //DETECÇÃO DE ERROS
 
-//01 - PARIDADE DUPLA
+//01 - PARIDADE SIMPLES
 
-//RECEPTOR PARA VALIDAR POR PARIDADE DUPLA
+//EMISSOR - PARIDADE SIMPLES (PAR)
+function emissorparidadesimples($bin){
+
+    global $note;
+    $array = str_split($bin);
+    if(array_sum($array) % 2 == 0){
+        array_push($array,0);
+    } else {
+        array_push($array,1);
+    }
+
+    return implode("",$array);
+
+}
+
+//RECEPTOR - PARIDADE SIMPLES (PAR)
+function receptorparidadesimples($bin){
+
+    global $note;
+    $return = false;
+    $array = str_split($bin);
+    if(array_sum($array) % 2 != 0){
+        $note .= "</br><b>ERRO DETECTADO:</b> O BLOCO ESTA CORROMPIDO";
+        $return = true;
+    } else {
+        $note .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - PARIDADE SIMPLES";
+    }
+
+    return $return;
+    
+}
+
+//02 - PARIDADE DUPLA
+
+//RECEPTOR - PARIDADE DUPLA (PAR)
 function receptorparidadedupla($bin){
 
-    global $obser;
+    global $note;
     $return = false;
     $array = str_split($bin, 8);
     $arrayvertical[8];
     for($i = 0; $i < count($array); $i++){
         $array[$i] = str_split($array[$i]);
         if(array_sum($array[$i]) % 2 != 0){
-            $obser .= "</br><b>ERRO DETECTADO:</b> BLOCO {$i} ESTA CORROMPIDO";
+            $note .= "</br><b>ERRO DETECTADO:</b> BLOCO {$i} ESTA CORROMPIDO";
             $return = true;
         }
     }
@@ -80,58 +114,24 @@ function receptorparidadedupla($bin){
     }
     for($i = 0; $i < count($arrayvertical); $i++){
         if(array_sum($arrayvertical[$i]) % 2 != 0){
-            $obser .= "</br><b>ERRO DETECTADO:</b> COLUNA {$i} ESTA CORROMPIDA";
+            $note .= "</br><b>ERRO DETECTADO:</b> COLUNA {$i} ESTA CORROMPIDA";
             $return = true;
         }
     }
     if(!$return){
-        $obser .= "</br><b>BLOCOS RECEBIDOS SEM ERROS:</b> TIPO - PARIDADE DUPLA";
+        $note .= "</br><b>BLOCOS RECEBIDOS SEM ERROS:</b> TIPO - PARIDADE DUPLA";
     }
 
     return $return ;
 
 }
 
-//01 - PARIDADE SIMPLES
+//03 - CYCLIC REDUNDANCY CHECK (CRC)
 
-//EMISSOR DE PARIDADE SIMPLES
-function emissorparidadesimples($bin){
-
-    global $obser;
-    $array = str_split($bin);
-    if(array_sum($array) % 2 == 0){
-        array_push($array,0);
-    } else {
-        array_push($array,1);
-    }
-
-    return implode("",$array);
-
-}
-
-//RECEPTOR PARA PARIDADE SIMPLES
-function receptorparidadesimples($bin){
-
-    global $obser;
-    $return = false;
-    $array = str_split($bin);
-    if(array_sum($array) % 2 != 0){
-        $obser .= "</br><b>ERRO DETECTADO:</b> O BLOCO ESTA CORROMPIDO";
-        $return = true;
-    } else {
-        $obser .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - PARIDADE SIMPLES";
-    }
-
-    return $return;
-    
-}
-
-//02 - CYCLIC REDUNDANCY CHECK (CRC)
-
-//EMISSOR CRC
+//EMISSOR - CRC
 function emissorcrc($bin){
 
-    global $obser;
+    global $note;
     $dividendo = $bin."000";
     $array = str_split($dividendo);
     $divisor = "1101";
@@ -152,23 +152,23 @@ function emissorcrc($bin){
             $quociente .= "1";
         }
     }
-    
+
     $quociente = substr($quociente, 0, -1);
     $resto = substr($resto, -3);
 
-    $obser .= "</br><b>EMISSOR CRC</b>";
-    $obser .= "</br><b>BINÁRIO:</b> {$bin}";
-    $obser .= "</br><b>RESTO:</b> {$resto}";
-    $obser .= "</br><b>RESULTADO DA EMISSAO:</b> {$bin}{$resto}";
+    $note .= "</br><b>EMISSOR CRC</b>";
+    $note .= "</br><b>BINÁRIO:</b> {$bin}";
+    $note .= "</br><b>RESTO:</b> {$resto}";
+    $note .= "</br><b>RESULTADO DA EMISSAO:</b> {$bin}{$resto}";
 
     return $bin.$resto;
 
 }
 
-//RECEPTOR CRC
+//RECEPTOR - CRC
 function receptorcrc($bin){
 
-    global $obser;
+    global $note;
     $array = str_split($bin);
     $divisor = "1101";
     $quociente = "1";
@@ -193,21 +193,21 @@ function receptorcrc($bin){
     $resto = substr($resto, -3);
     $dado = substr($bin, 0, -3);
 
-    $obser .= "</br></br><b>RECEPTOR CRC</b>";
-    $obser .= "</br><b>BINÁRIO:</b> {$bin}";
-    $obser .= "</br><b>RESTO:</b> {$resto}";
-    $obser .= "</br><b>DADOS RECEBIDOS:</b> {$dado}";
+    $note .= "</br></br><b>RECEPTOR CRC</b>";
+    $note .= "</br><b>BINÁRIO:</b> {$bin}";
+    $note .= "</br><b>RESTO:</b> {$resto}";
+    $note .= "</br><b>DADOS RECEBIDOS:</b> {$dado}";
 
     return (boolean) bindec($resto);
 
 }
 
-//03 - CHECKSUM
+//04 - CHECKSUM
 
-//EMISSOR CHECKSUM
+//EMISSOR - CHECKSUM
 function emissorchecksum($bin){
 
-    global $obser;
+    global $note;
     $segmentos = str_split($bin, 8);
     $checksum = $segmentos[0];
 
@@ -232,14 +232,14 @@ function emissorchecksum($bin){
 
 }
 
-//RECEPTOR CHECKSUM
+//RECEPTOR - CHECKSUM
 function receptorchecksum($bin){
 
-    global $obser;    
+    global $note;    
     $segmentos = str_split($bin, 8);
     $segmentos = array_reverse($segmentos);
     $checksum = $segmentos[0];
-    
+
     $sob = 0;
     $res;
 
@@ -260,12 +260,12 @@ function receptorchecksum($bin){
 
     $return = (boolean) bindec($checksum);
 
-    $obser .= "</br><b>CHECKSUM CALCULADO:</b> {$checksum}";
+    $note .= "</br><b>CHECKSUM CALCULADO:</b> {$checksum}";
 
     if($return){
-        $obser .= "</br><b>ERRO DETECTADO:</b> CHECKSUM INVÁLIDO";
+        $note .= "</br><b>ERRO DETECTADO:</b> CHECKSUM INVÁLIDO";
     } else {
-        $obser .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - CHECKSUM";
+        $note .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - CHECKSUM";
     }    
 
     return $return;
@@ -274,12 +274,12 @@ function receptorchecksum($bin){
 
 //CORREÇÃO DE ERROS
 
-//04 - HAMMING
+//05 - HAMMING
 
-//EMISSOR HAMMING
+//EMISSOR - HAMMING
 function emissorhamming($bin){
-    
-    global $obser;    
+
+    global $note;    
     $position = array(0,1,3,7,15,31);
     $array = str_split($bin);
     $array = array_reverse($array);
@@ -313,10 +313,10 @@ function emissorhamming($bin){
 
 }
 
-//RECEPTOR HAMMING
+//RECEPTOR - HAMMING
 function receptorhamming($bin){
-    
-    global $obser;    
+
+    global $note;    
     $position = array(0,1,3,7,15,31);
     $array = str_split($bin);
     $array = array_reverse($array);
@@ -348,13 +348,13 @@ function receptorhamming($bin){
         $array[$position_erro - 1] = ($array[$position_erro - 1] == 0) ? 1 : 0 ;
         $bin_corrigido = implode("",array_reverse($array));    
 
-        $obser .= "</br><b>ERRO DETECTADO POR HAMMING:</b> POSIÇÃO {$position_erro} CORROMPIDA";
-        $obser .= "</br><b>BINÁRIO EMITIDO:</b> {$bin}";
-        $obser .= "</br><b>BINÁRIO CORRIGIDO:</b> {$bin_corrigido}";
+        $note .= "</br><b>ERRO DETECTADO POR HAMMING:</b> POSIÇÃO {$position_erro} CORROMPIDA";
+        $note .= "</br><b>BINÁRIO EMITIDO:</b> {$bin}";
+        $note .= "</br><b>BINÁRIO CORRIGIDO:</b> {$bin_corrigido}";
 
     } else {
 
-        $obser .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - HAMMING";
+        $note .= "</br><b>BLOCO RECEBIDO SEM ERROS:</b> TIPO - HAMMING";
 
     }
 
